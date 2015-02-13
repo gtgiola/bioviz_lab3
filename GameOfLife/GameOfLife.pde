@@ -12,13 +12,14 @@ boolean pause = false;
 int RecX, pauseRecY, resetRecY, clearRecY;// Params for button sizes
 int recSizeX = 90;
 int recSizeY = 35;
+int countPrey, countPred, countZ;
 boolean overPause = false;
 boolean overReset = false;
 boolean overClear = false;
 Scrollbar hs1;
 
 void setup() {
-  size (800, 500);
+  size (900, 500);
   // Instantiate arrays
   cell = new int[600/cellSize][400/cellSize];
   cellBuffer = new int[600/cellSize][400/cellSize];
@@ -52,30 +53,51 @@ void setup() {
 
 void draw() {
   update(mouseX, mouseY);
+  countPrey = 0;
+  countZ = 0;
+  countPred = 0;
   //Grid
   for (int x=0; x<600/cellSize; x++) {
     for (int y=0; y<400/cellSize; y++) {
       if (cell[x][y]==1) {
         fill(alive);
+        countPrey ++;
       } else if (cell[x][y]==2) {
         fill(zombie);
+        countZ ++;
       } else if (cell[x][y]==3) {
         fill(pred);
+        countPred ++;
       } else {
         fill(dead);
       }
       rect (x*cellSize, y*cellSize, cellSize, cellSize);
+      fill(0, 0, 255);
     }
   }
+
   float interval = hs1.getPos();
   // Iterate if timer ticks
   if (millis()-lastRecordedTime>interval) {
     if (!pause) {
       iteration();
       lastRecordedTime = millis();
+      fill(255, 255, 255);
+      rect(850, 200, 850, 350);
+      fill(0, 0, 255);
+      text(countPrey, 850, 250);
+      text(countPred, 850, 275);
+      text(countZ, 850, 300);
     }
   }
-
+  if (pause) {
+    fill(255, 255, 255);
+    rect(850, 200, 850, 350);
+    fill(0, 0, 255);
+    text(countPrey, 850, 250);
+    text(countPred, 850, 275);
+    text(countZ, 850, 300);
+  }
   // draw new cells on pause
   if (pause && mousePressed && (mouseButton == LEFT)) {
     // Map and avoid out of bound errors
@@ -127,6 +149,8 @@ void draw() {
   textSize(32);
   if (pause) {
     fill(255, 0, 0);
+  } else {
+    fill(0);
   }
   rect(RecX, pauseRecY, recSizeX, recSizeY);
   fill(0, 0, 255);
@@ -142,6 +166,16 @@ void draw() {
   String s = "Move the slider to adjust the interval speed.";
   textSize(20);
   text(s, 100, 475);
+  String p = "Number of living prey cells";
+  textSize(12);
+  text(p, 650, 250);
+  String pr = "Number of living predator cells";
+  textSize(12);
+  text(pr, 650, 275);
+  String z = "Number of sick cells";
+  textSize(12);
+  text(z, 650, 300);
+
 
   hs1.update();
   hs1.display();
@@ -258,6 +292,9 @@ void mousePressed() {
     for (int x=0; x<600/cellSize; x++) {
       for (int y=0; y<400/cellSize; y++) {
         cell[x][y] = 0; // Save all to zero
+        countZ = 0;
+        countPrey = 0;
+        countPred = 0;
       }
     }
   }
